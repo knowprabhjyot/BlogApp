@@ -1,7 +1,17 @@
 const PostModel = require('../models/post');
 const jwt = require('jsonwebtoken');
 const UserModel = require('../models/user');
+const cloudinary = require('cloudinary').v2;
 
+
+// Configuration 
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUD_API_KEY,
+    api_secret: process.env.CLOUD_API_SECRET
+  });
+
+  
 const getAllPosts = async (request, response) => {
     const token = request.headers?.authorization?.split(" ")[1];
     let decodeToken;
@@ -50,6 +60,11 @@ const getAllPosts = async (request, response) => {
 const createPost = async (request, response) => {
     try {
         const body = request.body;
+        console.log(body, "body data");
+        const res = await  cloudinary.uploader.upload(body.image, {public_id: Math.random()});
+
+        console.log(res, "cloudinary respoinse");
+
         const newPost = new PostModel(body);
         const data = await newPost.save();
         return response.status(201).json({
